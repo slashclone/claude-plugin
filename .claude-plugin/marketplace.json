@@ -1,0 +1,12 @@
+{
+  "name": "slashclone",
+  "owner": { "name": "SlashClone" },
+  "metadata": { "description": "The SlashClone plugin for Claude Code." },
+  "plugins": [
+    {
+      "name": "slashclone",
+      "source": "./plugin",
+      "description": "Find, install, save, and publish agent building blocks on SlashClone."
+    }
+  ]
+}
