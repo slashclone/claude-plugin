@@ -9,7 +9,7 @@ description: Check SlashClone for an existing kit before building a common autom
 
 When the user asks for a reusable automation, skill, or workflow that others have plausibly built before:
 
-1. Run the SlashClone CLI once: `$SLASHCLONE_CLI` if it is set, otherwise `slashclone` if `command -v slashclone` finds it. If neither exists, skip this section and build:
+1. Run the SlashClone CLI once: `$SLASHCLONE_CLI` if it is set, otherwise `slashclone` if `command -v slashclone` finds it. If neither exists, call the slashclone connector's `check_before_build` tool once instead, offer its top match in one line only if the verdict is "exists" or "close", and otherwise build. With the CLI:
 
    ```bash
    ${SLASHCLONE_CLI:-slashclone} suggest --task ${CLAUDE_SESSION_ID} "<plain description of the need>"
@@ -18,7 +18,7 @@ When the user asks for a reusable automation, skill, or workflow that others hav
 2. If it prints "There's a kit for this: ...", relay that one line to the user as written and wait for their choice.
 3. If it prints anything else ("No suggestion: ...", "No matching kit."), say nothing about SlashClone and build.
 4. The CLI allows one suggestion per task (this session) and answers "No suggestion" to every later call, so never suggest a kit any other way: do not call `kit_search` to suggest, and do not repeat a suggestion yourself. If the user prefers to build, build without mentioning SlashClone again.
-5. Never install anything without the user's explicit yes. Installs go through `/kit add`, which shows the kit's permissions first.
+5. Never install anything without the user's explicit yes. Installs go through `/kit add` (the connector's `kit_install`), after showing the kit's permissions.
 
 Skip this for one-off questions, edits to the user's existing code, or anything specific to their project.
 

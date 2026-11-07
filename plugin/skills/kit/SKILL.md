@@ -9,9 +9,13 @@ disable-model-invocation: true
 
 Run the SlashClone subcommand the user asked for: `$ARGUMENTS`
 
+## The connector first
+
+Installing and sharing go through the slashclone MCP connector, with nothing else to install: `kit_install` returns one command that downloads a kit, checks its signed hash, and unpacks it; `kit_upload` returns one command that zips a folder and uploads it as a private draft. If the connector is not connected, tell the user to add it from https://slashclone.dev/connect (or run `/mcp` and sign in to slashclone).
+
 ## The CLI
 
-Every file-writing step uses the SlashClone CLI, which verifies signatures and writes Claude Code permission rules. Find it once, in this order:
+Only stack, clone, update, audit, build, and hook kits need the SlashClone CLI, which also writes Claude Code permission rules. Find it once, in this order:
 
 1. `echo "$SLASHCLONE_CLI"`: if set (for example `node /path/to/slashclone/packages/cli/src/bin.ts` for development), use it.
 2. `command -v slashclone`: if found, use `slashclone` (installed with `npm install -g slashclone`).
@@ -27,11 +31,10 @@ Below, `kb` means the CLI you found.
 
 **add `@owner/kit[@version]`**:
 
-1. Run `kb add <ref>`. Without approval it prints what the kit is, how it was verified, its scan and test status, and everything it is allowed to touch, then exits without installing.
-2. Show the user that summary in your own words, especially the "This kit:" permissions, and ask "Install it?".
-3. Only after a clear yes, run `kb add <ref> --yes`.
-4. If the output says the update "asks for new access", ask again specifically about the new lines. Only after a clear yes, run it with `--approve-new-permissions`.
-5. If the output has a "Set up its keys" list, walk the user through it: for each key not marked `[set]`, say what it is for and give its "Get it" link. Tell them to set it in their shell profile or their agent's env settings and restart Claude Code. Never ask for a value, never accept one pasted into the chat (if they paste one anyway, tell them to revoke it and make a new one), and never read or print a value. To check one, you may run `test -n "$NAME" && echo set || echo "not set"`, which prints only whether it is set.
+1. Call `kit_get` with the ref. Show the user in your own words what it does, everything it may touch (`permissions`), and what it needs installed (`needs`), and ask "Install it?".
+2. Only after a clear yes, call `kit_install` (scope `user` unless they want it in this project only) and run the command it returns, unchanged.
+3. Hook kits are the exception: `kit_install` says to use the CLI. Then run `kb add <ref>`, show its summary, and only after a clear yes run `kb add <ref> --yes`.
+4. If `kit_get` lists keys to set up, walk the user through them: for each key not set, say what it is for and give its "Get it" link. Tell them to set it in their shell profile or their agent's env settings and restart Claude Code. Never ask for a value, never accept one pasted into the chat (if they paste one anyway, tell them to revoke it and make a new one), and never read or print a value. To check one, you may run `test -n "$NAME" && echo set || echo "not set"`, which prints only whether it is set.
 
 **stack `@owner/stack`**: Installs every kit in a stack, in setup order, with one approval.
 
@@ -42,14 +45,13 @@ Below, `kb` means the CLI you found.
 
 To create a stack, help the user write `stack.json` (slug, title, description, visibility, `items` in setup order as `{ "kit": "@owner/kit", "version": "^1.0.0" }`, and `env` as `{ "name": "API_TOKEN", "description": "..." }`), then run `kb stack create`.
 
-**save**: Package the skill or workflow you just built together as a kit.
+**save**: Share a skill or workflow the user built as a kit.
 
-1. Make a folder for it (ask where if unclear) with `SKILL.md` (Agent Skills frontmatter: `name` in lowercase-hyphen form, and a `description` saying what it does and when to use it) and any scripts it needs.
-2. Write `kit.json`: name, owner (the user's handle; get it from `kb whoami`), version `0.1.0`, type, description, category, license (ask; MIT is the default), compat `["claude-code"]`, and permissions that declare every MCP tool, shell command, network domain, file path (relative), and env var name it uses. Never put secret values anywhere; use env var names.
-3. Run `kb validate <folder>` and fix every failing finding.
-4. Ask whether it should be public, unlisted, or private (a new kit is private unless you pass a flag), then run `kb save <folder> --public` (or `--unlisted`, `--private`).
+1. Find its folder, or make one (ask where if unclear) with `SKILL.md` (Agent Skills frontmatter: `name` in lowercase-hyphen form, and a `description` saying what it does and when to use it) and any scripts it needs. A `kit.json` is optional: SlashClone fills it in from SKILL.md and the files, including the permissions its scan finds. If you write one, never put secret values in it; use env var names.
+2. Check the folder holds no secrets, credentials, or private data, and ask the user before sharing.
+3. Call `kit_upload`, replace `<KIT_FOLDER>` in its command with the folder, and run it. The reply says what was saved as a private draft, with its permissions and any warnings. If it lists problems, fix them in the folder and run the same command again.
 
-**publish `[folder]`**: Ask who should see it: public (everyone, the usual choice for sharing), unlisted (anyone with the link), or private (only the user). After a clear answer, run `kb publish <folder> --public` (or `--unlisted`, `--private`). Without a flag a new kit stays private. Tell the user what the last line says: the live link, or that only they can see it. If the scan blocks it, show the findings and offer to fix them.
+**publish `[@owner/kit@version]`**: Ask who should see it: public (everyone, the usual choice for sharing), unlisted (anyone with the link), or private (only the user). After a clear answer, call `kit_publish` with the draft's ref. Tell the user the live link, or that only they can see it. If the scan blocks it, show the findings and offer to fix them, then save again.
 
 **clone `@owner/kit[@version]` `[--as <name>]`** (`remix` and `fork` are aliases): Clone a kit (make it the user's own to change, with credit to the original, and install it). Run `kb clone <ref>` first: it previews the original kit and exits without creating anything. Confirm with the user, then run it again with `--yes`, which creates the clone and installs it. To edit it in the browser instead, open the kit page and choose Clone.
 

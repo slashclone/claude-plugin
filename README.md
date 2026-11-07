@@ -11,16 +11,16 @@ In Claude Code:
 /plugin install slashclone@slashclone
 ```
 
-Then run `/mcp` and sign in to `slashclone` to search kits from chat.
+Then run `/mcp` and sign in to `slashclone`. If you already added the SlashClone connector on claude.ai, Claude Code signed in with the same account has it too.
 
-Installing and publishing kits uses the SlashClone CLI, which checks every kit's signature before it writes a file. It needs Node 22 or newer:
+That is all you need: ask Claude to find and install a kit, or to share a skill you made. Installs are checked against each kit's signed hash before anything is unpacked.
+
+Stacks, clones, updates, audits, and hook kits use the SlashClone CLI, which needs Node 22 or newer:
 
 ```
 npm install -g slashclone
 slashclone login
 ```
-
-No Node? Use SlashClone in claude.ai or the Claude desktop app instead: https://slashclone.dev/connect
 
 ## What you get
 
