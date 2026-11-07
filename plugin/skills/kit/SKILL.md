@@ -1,7 +1,7 @@
 ---
 name: kit
-description: SlashClone commands. /kit find <need>, /kit add @owner/kit, /kit stack @owner/stack, /kit save, /kit publish, /kit clone @owner/kit, /kit update, /kit audit, /kit build, /kit breakdown [folder].
-argument-hint: "[find|add|stack|save|publish|clone|update|audit|build|breakdown] [args]"
+description: SlashClone commands. /kit find <need>, /kit add @owner/kit, /kit stack @owner/stack, /kit sync [folder], /kit library, /kit playbook [goal or @owner/playbook], /kit save, /kit publish, /kit clone @owner/kit, /kit update, /kit audit, /kit build, /kit breakdown [folder].
+argument-hint: "[find|add|stack|sync|library|playbook|save|publish|clone|update|audit|build|breakdown] [args]"
 disable-model-invocation: true
 ---
 
@@ -44,6 +44,20 @@ Below, `kb` means the CLI you found.
 4. Show the env var checklist it prints. It only says whether each name is set; never ask the user to paste a value into the chat. Point them to their shell profile instead.
 
 To create a stack, help the user write `stack.json` (slug, title, description, visibility, `items` in setup order as `{ "kit": "@owner/kit", "version": "^1.0.0" }`, and `env` as `{ "name": "API_TOKEN", "description": "..." }`), then run `kb stack create`.
+
+**library `[folder]`**: Call `library_list` (with the folder if given) and show the user their library grouped by folder: each kit's title, why it is there (made, saved, bought, liked), and whether it has an update. To file kits into folders, use `library_folders`; to save one, `library_add`.
+
+**sync `[folder]`**: Put the user's whole SlashClone library (or one folder) into `~/.claude/skills`, so every kit works in every project.
+
+1. Call `library_sync` (with `folder` if given). Show what it will install, what each kit may touch, what it needs, and what it skips and why. A full sync also removes kits an earlier sync installed that are no longer in the library; say so. Ask "Sync these?".
+2. Only after a clear yes, call `library_sync` again with `confirm: true` and run the command it returns, unchanged.
+3. When it succeeds, call `library_sync` with `finished: true` and the kit count, and tell the user a new Claude Code session may be needed for new skills to appear.
+
+**playbook `[goal or @owner/playbook]`**: Get one whole job done with kits run in order.
+
+1. With a goal, call `playbook_list` and suggest the best match; with a ref, use it. Call `playbook_get` and show the steps: what each does and what it passes on.
+2. Call `playbook_start`. Show what it installs and what each kit may touch, and ask "Set it up?". Only after a clear yes, call it again with `confirm: true` and run the command, unchanged.
+3. Run the steps in order. Before each, say what it will do; after each, call `playbook_step_done` and carry its result into the next step. Stop and ask whenever a step needs a decision, a key, or access the user has not given.
 
 **save**: Share a skill or workflow the user built as a kit.
 

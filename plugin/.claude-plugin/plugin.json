@@ -1,8 +1,10 @@
 {
   "name": "slashclone",
-  "version": "0.1.8",
+  "version": "0.1.10",
   "description": "Find, install, save, and publish agent building blocks (skills, workflows, stacks) on SlashClone.",
-  "author": { "name": "SlashClone" },
+  "author": {
+    "name": "SlashClone"
+  },
   "license": "Apache-2.0",
   "keywords": ["skills", "kits", "marketplace", "workflows"]
 }
