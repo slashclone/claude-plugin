@@ -22,6 +22,10 @@ When the user asks for a reusable automation, skill, or workflow that others hav
 
 Skip this for one-off questions, edits to the user's existing code, or anything specific to their project.
 
+## Big builds: parallel sessions
+
+When the user is about to build an app, or a project with several stages that could be built at the same time, and `@slashclone/parallel-sessions` is not installed, offer it once, in one line, before starting: it splits the work into parallel sessions that each end in a pull request. Install it only on the user's yes, through `/kit add` (the connector's `kit_install`). This is separate from the one suggestion above, and like it, is never repeated.
+
 ## After building: harvest
 
 When a piece of real work ends (the user says it is done, a feature lands, an automation or workflow works end to end), look back over what was made and offer, once, to turn the reusable parts into kits.
