@@ -11,11 +11,11 @@ Run the SlashClone subcommand the user asked for: `$ARGUMENTS`
 
 ## The connector first
 
-Installing and sharing go through the slashclone MCP connector, with nothing else to install: `kit_install` returns one command that downloads a kit, checks its signed hash, and unpacks it; `kit_upload` returns one command that zips a folder and uploads it as a private draft. If the connector is not connected, tell the user to add it from https://slashclone.dev/connect (or run `/mcp` and sign in to slashclone).
+Installing and sharing go through the slashclone MCP connector, with nothing else to install: `kit_install` returns one command that downloads a kit, checks its signed hash, unpacks it, and writes the kit's Claude Code permission rules, the same ones the CLI writes (it needs Perl, which macOS and most Linux include); `kit_upload` returns one command that zips a folder and uploads it as a private draft. If the connector is not connected, tell the user to add it from https://slashclone.dev/connect (or run `/mcp` and sign in to slashclone).
 
 ## The CLI
 
-Only stack, clone, update, audit, build, and hook kits need the SlashClone CLI, which also writes Claude Code permission rules. Find it once, in this order:
+Only stack, clone, update, audit, build, and hook kits need the SlashClone CLI. Find it once, in this order:
 
 1. `echo "$SLASHCLONE_CLI"`: if set (for example `node /path/to/slashclone/packages/cli/src/bin.ts` for development), use it.
 2. `command -v slashclone`: if found, use `slashclone` (installed with `npm install -g slashclone`).
@@ -32,8 +32,8 @@ Below, `kb` means the CLI you found.
 **add `@owner/kit[@version]`**:
 
 1. Call `kit_get` with the ref. Show the user in your own words what it does, everything it may touch (`permissions`), and what it needs installed (`needs`), and ask "Install it?".
-2. Only after a clear yes, call `kit_install` (scope `user` unless they want it in this project only) and run the command it returns, unchanged.
-3. Hook kits are the exception: `kit_install` says to use the CLI. Then run `kb add <ref>`, show its summary, and only after a clear yes run `kb add <ref> --yes`.
+2. Only after a clear yes, call `kit_install` (scope `user` unless they want it in this project only). If its `permissions` differ from what you showed (they come from the signed kit itself), show them and ask again. Then run the command it returns, unchanged.
+3. Kits with hooks are the exception: `kit_install` says to use the CLI. Then run `kb add <ref>`, show its summary, and only after a clear yes run `kb add <ref> --yes`.
 4. If `kit_get` lists keys to set up, walk the user through them: for each key not set, say what it is for and give its "Get it" link. Tell them to set it in their shell profile or their agent's env settings and restart Claude Code. Never ask for a value, never accept one pasted into the chat (if they paste one anyway, tell them to revoke it and make a new one), and never read or print a value. To check one, you may run `test -n "$NAME" && echo set || echo "not set"`, which prints only whether it is set.
 
 **stack `@owner/stack`**: Installs every kit in a stack, in setup order, with one approval.
