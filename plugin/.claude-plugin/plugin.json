@@ -1,6 +1,6 @@
 {
   "name": "slashclone",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Find, install, save, and publish agent building blocks (skills, workflows, stacks) on SlashClone.",
   "author": {
     "name": "SlashClone"

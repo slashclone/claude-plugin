@@ -11,11 +11,11 @@ Run the SlashClone subcommand the user asked for: `$ARGUMENTS`
 
 ## The connector first
 
-Installing and sharing go through the slashclone MCP connector, with nothing else to install: `kit_install` returns one command that downloads a kit, checks its signed hash, unpacks it, and writes the kit's Claude Code permission rules, the same ones the CLI writes (it needs Perl, which macOS and most Linux include); `kit_upload` returns one command that zips a folder and uploads it as a private draft. If the connector is not connected, tell the user to add it from https://slashclone.dev/connect (or run `/mcp` and sign in to slashclone).
+Installing and sharing go through the slashclone MCP connector, with nothing else to install: `kit_install` returns one command that downloads a kit, checks its signed hash, unpacks it, and writes the kit's Claude Code permission rules, the same ones the CLI writes (with Perl, which macOS and most Linux include, or PowerShell from Git Bash on Windows); `kit_upload` returns one command that zips a folder and uploads it as a private draft (on Windows, call it with `shell: "powershell"`, since Git Bash has no zip); `kit_audit` reviews what the connector installed. If the connector is not connected, tell the user to add it from https://slashclone.dev/connect (or run `/mcp` and sign in to slashclone).
 
 ## The CLI
 
-Only stack, clone, update, audit, build, and hook kits need the SlashClone CLI. Find it once, in this order:
+Only stack, clone, update, build, and hook kits need the SlashClone CLI. Find it once, in this order:
 
 1. `echo "$SLASHCLONE_CLI"`: if set (for example `node /path/to/slashclone/packages/cli/src/bin.ts` for development), use it.
 2. `command -v slashclone`: if found, use `slashclone` (installed with `npm install -g slashclone`).
@@ -72,7 +72,7 @@ To create a stack, help the user write `stack.json` (slug, title, description, v
 
 **update**: Run `kb update --check` and show what is new. For each update the user wants, follow the same approval rules as add (`--yes`, and `--approve-new-permissions` only after explicit approval of the new access).
 
-**audit**: Run `kb audit` and summarize what each installed kit can touch and whether any were modified locally.
+**audit**: Call `kit_audit`, run the read-only command it returns as given (from the project folder, so this project's kits are included), and call `kit_audit` again with its whole output as `listing`. Summarize each kit: what it can touch, whether its signature checks, whether it was edited since it was installed, and whether an update exists (and any new access it asks for). If the CLI is found, also run `kb audit` for kits the CLI installed.
 
 **build**: Help the user write `build.json` (slug, entry_type, title, what_it_does, inputs, outputs, category, kits as `@owner/kit`), then run `kb build`.
 
