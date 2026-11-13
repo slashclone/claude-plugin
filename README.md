@@ -15,7 +15,7 @@ Then run `/mcp` and sign in to `slashclone`. If you already added the SlashClone
 
 That is all you need: ask Claude to find and install a kit, or to share a skill you made. Installs are checked against each kit's signed hash before anything is unpacked.
 
-Stacks, clones, updates, audits, and hook kits use the SlashClone CLI, which needs Node 22 or newer:
+The connector also clones kits, installs stacks, checks for updates, and audits the kits you installed. Only kits that add hooks to Claude Code need the SlashClone CLI, which needs Node 22 or newer:
 
 ```
 npm install -g slashclone
